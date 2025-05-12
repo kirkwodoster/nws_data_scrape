@@ -1,8 +1,8 @@
 asyncio
-selenium_driverless
+selenium-driverless
 datetime
 pandas
 requests
 pytz
 gspread
-google.oauth2.service_account
+google-oauth2-tool2
