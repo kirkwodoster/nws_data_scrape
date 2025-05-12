@@ -89,7 +89,7 @@ def to_sheets(sheet_name, data_input):
     creds = Credentials.from_service_account_file("credentials.json", scopes=scropes)
     client = gspread.authorize(creds)
 
-    sheet_id = "1JjBzplMaAfL3zXF_aRkAa1OuCS-W07RriC7itBNguNQ"
+    sheet_id = ""
     sheet = client.open_by_key(sheet_id)
     
     sheet.worksheet(sheet_name).append_rows(data_input)
