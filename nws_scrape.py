@@ -20,7 +20,7 @@ markets = [
     "KXHIGHLAX",
 ]
 
-hour = 170
+hour = 25
 
 url = [
     f"https://www.weather.gov/wrh/timeseries?site=KDEN&hours={hour}",
@@ -89,17 +89,20 @@ def to_sheets(sheet_name, data_input):
     creds = Credentials.from_service_account_file("credentials.json", scopes=scropes)
     client = gspread.authorize(creds)
 
-    sheet_id = ""
+    sheet_id = "1JjBzplMaAfL3zXF_aRkAa1OuCS-W07RriC7itBNguNQ"
     sheet = client.open_by_key(sheet_id)
     
     sheet.worksheet(sheet_name).append_rows(data_input)
     
-    asyncio.sleep(60)
+    
 
 async def click_and_see_menu(markets, url_scrape):
     
     options = webdriver.ChromeOptions()
     options.add_argument('--headless=new')
+    options.add_argument('--no-sandbox')  # Crucial for running as root or in some CI environments
+    options.add_argument('--disable-dev-shm-usage') # Overcomes resource limits in /dev/shm
+    options.add_argument('--disable-gpu') # Often recommended for headless
     
     async with webdriver.Chrome(options=options) as driver:
         url = url_scrape
@@ -180,16 +183,12 @@ if __name__ == "__main__":
 
     for i,j in zip(markets, url):
        output = asyncio.run(click_and_see_menu(markets = i, url_scrape = j))
-       to_sheets(sheet_name='daily_temp', data_input=output)
+       #2to_sheets(sheet_name='daily_temp', data_input=output)
     
+    today = datetime.today().weekday()
+    if today == 1:     
+        for a,b,c in zip(xml_url, timezone, markets):
+            output_predict = xml_scrape(xml_url=a, timezone=b, markets=c)
+            to_sheets(sheet_name='forecast', data_input=output_predict)
         
-    for a,b,c in zip(xml_url, timezone, markets):
-        output_predict = xml_scrape(xml_url=a, timezone=b, markets=c)
-        to_sheets(sheet_name='forecast', data_input=output_predict)
-        
-    # for a,b,c in zip(xml_url, timezone, markets):
-    #     output_predict = xml_scrape(xml_url=a, timezone=b, markets=c)
-    #     print(output_predict)
-    #     # to_sheets(sheet_name='forecast', data_input=output_predict, markets=markets)
-    #     break
-                                           
+                
