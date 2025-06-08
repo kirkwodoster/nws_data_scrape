@@ -64,14 +64,17 @@ def xml_scrape(xml_url, timezone, markets):
         value_elements = temperature_element.findall('.//value')
         temp = [int(value.text) for value in value_elements if isinstance(value.text, str)]
         temp_length = len(temp)
+        
+        tomorrow_day = datetime.now(timezone) + timedelta(days=1)
  
         forecasted = pd.DataFrame({'DateTime': dates[:temp_length], 'Temperature': temp})
         forecasted['DateTime'] = pd.to_datetime(forecasted['DateTime'])
         forecasted['Temperature'] = forecasted['Temperature'].apply(lambda x: str(x))
         forecasted = forecasted.sort_values(by='DateTime')
+        forecasted = forecasted[forecasted['DateTime'].dt.day == tomorrow_day.day]
         forecasted['DateTime'] = forecasted['DateTime'].dt.strftime('%Y-%m-%d %H:%M')
         
-        data_for_sheets = [list(forecasted.loc[i]) + [markets] for i in range(len(forecasted))]
+        data_for_sheets = [list(forecasted.iloc[i]) + [markets] for i in range(len(forecasted))]
         
         # all_markets = [markets] * len(forecasted)
 
